@@ -12,6 +12,10 @@ Create jobs (text stats, hashing, transforms, CSV aggregates, delays), watch the
   <img alt="License" src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" />
 </p>
 
+<p align="center">
+  <img src="docs/dashboard.jpg" alt="Ares dashboard — queue meter, recent jobs, and runtime stats" width="100%" />
+</p>
+
 ## Why this project
 
 Ares is built to exercise the parts of Node and Express that usually get skipped in toy demos:
