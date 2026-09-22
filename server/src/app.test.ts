@@ -1,24 +1,34 @@
 import assert from 'node:assert/strict';
-import { after, describe, it } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import request from 'supertest';
 import { loadEnv } from './config/env.js';
 import { createLogger } from './utils/logger.js';
 import { createApp, createContext } from './app.js';
+import type { AppContext } from './app.js';
+import type { Express } from 'express';
 
 describe('Ares API', () => {
-  const env = loadEnv({
-    ...process.env,
-    NODE_ENV: 'test',
-    PORT: '4000',
-    LOG_LEVEL: 'fatal',
-    QUEUE_CONCURRENCY: '1',
+  let ctx: AppContext;
+  let app: Express;
+
+  before(async () => {
+    const env = loadEnv({
+      ...process.env,
+      NODE_ENV: 'test',
+      PORT: '4000',
+      LOG_LEVEL: 'fatal',
+      QUEUE_CONCURRENCY: '1',
+      PERSIST_JOBS: 'false',
+      SEED_ON_BOOT: 'false',
+    });
+    const logger = createLogger(env);
+    ctx = await createContext(env, logger);
+    app = createApp(ctx);
   });
-  const logger = createLogger(env);
-  const ctx = createContext(env, logger);
-  const app = createApp(ctx);
 
   after(async () => {
     await ctx.queue.drain(2_000);
+    await ctx.store.flush();
   });
 
   it('returns health status', async () => {

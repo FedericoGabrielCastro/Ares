@@ -1,0 +1,15 @@
+node_modules
+.git
+.github
+dist
+client/dist
+server/dist
+coverage
+uploads
+data
+*.log
+.env
+.env.local
+.DS_Store
+README.md
+CONTRIBUTING.md

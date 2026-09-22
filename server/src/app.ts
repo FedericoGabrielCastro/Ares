@@ -28,7 +28,9 @@ export interface AppContext {
 
 export function createApp(ctx: AppContext) {
   const app = express();
-  const clientDist = path.resolve(process.cwd(), '../client/dist');
+  const clientDist = path.resolve(
+    ctx.env.CLIENT_DIST ?? path.join(process.cwd(), '../client/dist'),
+  );
   const hasClientBuild = fs.existsSync(path.join(clientDist, 'index.html'));
 
   app.disable('x-powered-by');
@@ -41,7 +43,7 @@ export function createApp(ctx: AppContext) {
   app.use(
     cors({
       origin: ctx.env.CORS_ORIGIN,
-      exposedHeaders: ['x-request-id', 'x-response-time'],
+      exposedHeaders: ['x-request-id', 'x-response-time', 'x-cache'],
     }),
   );
   app.use(express.json({ limit: '1mb' }));
@@ -100,8 +102,18 @@ export function createApp(ctx: AppContext) {
   return app;
 }
 
-export function createContext(env: Env, logger: Logger): AppContext {
-  const store = new JobStore();
+export async function createContext(env: Env, logger: Logger): Promise<AppContext> {
+  const persistPath =
+    env.PERSIST_JOBS && env.NODE_ENV !== 'test'
+      ? path.resolve(env.DATA_DIR, 'jobs.json')
+      : undefined;
+
+  const store = new JobStore({ persistPath });
+  const loaded = await store.load();
+  if (loaded > 0) {
+    logger.info({ loaded, persistPath }, 'Loaded jobs from disk');
+  }
+
   const queue = new JobQueue(store, logger, env.QUEUE_CONCURRENCY);
   return { env, logger, store, queue };
 }

@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { EventEmitter } from 'node:events';
 import { nanoid } from 'nanoid';
 import type {
@@ -8,11 +9,46 @@ import type {
   Paginated,
   QueueStats,
 } from '../types/job.js';
+import { readJsonFile, writeJsonAtomic } from '../utils/fsJson.js';
+
+interface PersistShape {
+  jobs: Job[];
+}
+
+export interface JobStoreOptions {
+  persistPath?: string;
+}
 
 export class JobStore extends EventEmitter {
   private readonly jobs = new Map<string, Job>();
   private readonly completedDurations: number[] = [];
   private readonly processedTimestamps: number[] = [];
+  private readonly persistPath?: string;
+  private persistTimer: NodeJS.Timeout | null = null;
+  private persistQueued = false;
+
+  constructor(options: JobStoreOptions = {}) {
+    super();
+    this.persistPath = options.persistPath
+      ? path.resolve(options.persistPath)
+      : undefined;
+  }
+
+  async load(): Promise<number> {
+    if (!this.persistPath) return 0;
+    const data = await readJsonFile<PersistShape>(this.persistPath, { jobs: [] });
+    for (const job of data.jobs) {
+      // Reset in-flight work so the queue can pick it up again after a restart.
+      if (job.status === 'running' || job.status === 'queued') {
+        job.status = 'queued';
+        job.startedAt = undefined;
+        job.finishedAt = undefined;
+        job.error = undefined;
+      }
+      this.jobs.set(job.id, job);
+    }
+    return this.jobs.size;
+  }
 
   create(payload: CreateJobPayload): Job {
     const now = new Date().toISOString();
@@ -26,6 +62,7 @@ export class JobStore extends EventEmitter {
       attempts: 0,
     };
     this.jobs.set(job.id, job);
+    this.schedulePersist();
     this.emit('created', job);
     return structuredClone(job);
   }
@@ -88,6 +125,7 @@ export class JobStore extends EventEmitter {
       updatedAt: new Date().toISOString(),
     };
     this.jobs.set(id, next);
+    this.schedulePersist();
     this.emit('updated', next);
     return structuredClone(next);
   }
@@ -100,6 +138,7 @@ export class JobStore extends EventEmitter {
     const job = this.jobs.get(id);
     if (!job) return false;
     this.jobs.delete(id);
+    this.schedulePersist();
     this.emit('removed', job);
     return true;
   }
@@ -143,6 +182,40 @@ export class JobStore extends EventEmitter {
       processedLastMinute: this.processedTimestamps.length,
       averageDurationMs,
     };
+  }
+
+  queuedIds(): string[] {
+    return Array.from(this.jobs.values())
+      .filter((job) => job.status === 'queued')
+      .map((job) => job.id);
+  }
+
+  async flush(): Promise<void> {
+    if (this.persistTimer) {
+      clearTimeout(this.persistTimer);
+      this.persistTimer = null;
+    }
+    await this.persistNow();
+  }
+
+  private schedulePersist(): void {
+    if (!this.persistPath) return;
+    this.persistQueued = true;
+    if (this.persistTimer) return;
+    this.persistTimer = setTimeout(() => {
+      this.persistTimer = null;
+      void this.persistNow();
+    }, 150);
+    this.persistTimer.unref?.();
+  }
+
+  private async persistNow(): Promise<void> {
+    if (!this.persistPath || !this.persistQueued) return;
+    this.persistQueued = false;
+    const payload: PersistShape = {
+      jobs: Array.from(this.jobs.values()),
+    };
+    await writeJsonAtomic(this.persistPath, payload);
   }
 
   private pruneProcessedTimestamps(now: number): void {
