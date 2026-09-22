@@ -20,6 +20,7 @@ Submit processing jobs, watch them move through a queue, inspect results, and ex
 - Background job queue with lifecycle events
 - Stream-based payload processing
 - Worker-thread CPU tasks (word stats, hashing)
+- File upload endpoint for text-stats jobs
 - Pagination, filtering, and sorting
 - React dashboard powered by TanStack Query
 - Minimal, modern UI with Tailwind CSS
@@ -27,15 +28,12 @@ Submit processing jobs, watch them move through a queue, inspect results, and ex
 ## Quick start
 
 ```bash
-# Install dependencies (root workspaces)
 npm install
-
-# Run API + UI in development
 npm run dev
 ```
 
 - API: `http://localhost:4000`
-- UI: `http://localhost:5173`
+- UI: `http://localhost:5173` (proxies `/api` to the server)
 
 ## Scripts
 
@@ -55,17 +53,29 @@ Ares/
 └── package.json     # Workspaces root
 ```
 
+## Job types
+
+| Type | What it does |
+| --- | --- |
+| `text-stats` | Stream text and count words / lines / characters |
+| `hash` | SHA-256 digest via a worker thread |
+| `transform` | Upper / lower / reverse |
+| `delay` | Artificial wait to demonstrate queue concurrency |
+| `csv-aggregate` | Sum / avg / min / max for a numeric CSV column |
+
 ## API overview
 
 | Method | Path | Description |
 | --- | --- | --- |
 | `GET` | `/api/health` | Liveness probe |
+| `GET` | `/api/ready` | Readiness probe |
 | `GET` | `/api/jobs` | List jobs (filter, sort, paginate) |
 | `POST` | `/api/jobs` | Create a job |
 | `GET` | `/api/jobs/:id` | Job detail |
 | `DELETE` | `/api/jobs/:id` | Cancel / remove a job |
-| `GET` | `/api/stats` | Queue and throughput metrics |
 | `POST` | `/api/jobs/:id/retry` | Re-queue a failed job |
+| `GET` | `/api/stats` | Queue and throughput metrics |
+| `POST` | `/api/upload/text-stats` | Upload a text file as a job |
 
 ## License
 
