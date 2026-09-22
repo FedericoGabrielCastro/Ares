@@ -23,7 +23,10 @@ Submit processing jobs, watch them move through a queue, inspect results, and ex
 - File upload endpoint for text-stats jobs
 - Pagination, filtering, and sorting
 - React dashboard powered by TanStack Query
+- Live updates over Server-Sent Events
+- Optional JSON file persistence across restarts
 - Minimal, modern UI with Tailwind CSS
+- Docker image + Compose for one-command deploys
 
 ## Quick start
 
@@ -35,6 +38,14 @@ npm run dev
 - API: `http://localhost:4000`
 - UI: `http://localhost:5173` (proxies `/api` to the server)
 
+## Docker
+
+```bash
+docker compose up --build
+```
+
+Open `http://localhost:4000` for the production UI + API in a single container. Job history is stored under the `ares-data` volume.
+
 ## Scripts
 
 | Command | Description |
@@ -43,6 +54,7 @@ npm run dev
 | `npm run build` | Build API and UI for production |
 | `npm run start` | Run the production API |
 | `npm test` | Run API tests |
+| `docker compose up --build` | Build and run the production container |
 
 ## Project structure
 
@@ -50,6 +62,8 @@ npm run dev
 Ares/
 ├── server/          # Express REST API + processing engine
 ├── client/          # React + Vite + TanStack Query
+├── Dockerfile       # Multi-stage production image
+├── docker-compose.yml
 └── package.json     # Workspaces root
 ```
 

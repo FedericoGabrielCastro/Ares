@@ -4,7 +4,8 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import type { Job, JobResult } from '../types/job.js';
 
-const workerPath = fileURLToPath(new URL('../workers/hashWorker.ts', import.meta.url));
+const workerExtension = import.meta.url.endsWith('.ts') ? '.ts' : '.js';
+const workerPath = fileURLToPath(new URL(`../workers/hashWorker${workerExtension}`, import.meta.url));
 
 async function readTextStats(text: string): Promise<JobResult['data']> {
   let characters = 0;

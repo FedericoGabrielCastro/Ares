@@ -10,6 +10,16 @@ const envSchema = z.object({
   QUEUE_CONCURRENCY: z.coerce.number().int().positive().default(2),
   UPLOAD_DIR: z.string().default('uploads'),
   MAX_UPLOAD_BYTES: z.coerce.number().int().positive().default(2 * 1024 * 1024),
+  DATA_DIR: z.string().default('data'),
+  PERSIST_JOBS: z
+    .union([z.literal('true'), z.literal('false'), z.boolean()])
+    .default('true')
+    .transform((value) => value === true || value === 'true'),
+  CLIENT_DIST: z.string().optional(),
+  SEED_ON_BOOT: z
+    .union([z.literal('true'), z.literal('false'), z.boolean()])
+    .default('true')
+    .transform((value) => value === true || value === 'true'),
 });
 
 export type Env = z.infer<typeof envSchema>;

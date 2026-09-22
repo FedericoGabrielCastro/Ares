@@ -7,13 +7,18 @@ import { seedSampleJobs } from './services/seed.js';
 async function main(): Promise<void> {
   const env = loadEnv();
   const logger = createLogger(env);
-  const ctx = createContext(env, logger);
+  const ctx = await createContext(env, logger);
   const app = createApp(ctx);
   const server = http.createServer(app);
 
   server.listen(env.PORT, () => {
     logger.info({ port: env.PORT, env: env.NODE_ENV }, 'Ares API listening');
-    if (env.NODE_ENV === 'development') {
+
+    for (const jobId of ctx.store.queuedIds()) {
+      ctx.queue.enqueue(jobId);
+    }
+
+    if (env.SEED_ON_BOOT && env.NODE_ENV === 'development') {
       const created = seedSampleJobs(ctx.store, ctx.queue);
       if (created > 0) {
         logger.info({ created }, 'Seeded sample jobs');
@@ -25,6 +30,7 @@ async function main(): Promise<void> {
     logger.info({ signal }, 'Shutting down gracefully');
     server.close(async () => {
       await ctx.queue.drain(8_000);
+      await ctx.store.flush();
       logger.info('Shutdown complete');
       process.exit(0);
     });

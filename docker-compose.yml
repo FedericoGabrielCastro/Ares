@@ -1,0 +1,22 @@
+services:
+  ares:
+    build: .
+    ports:
+      - "4000:4000"
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      CORS_ORIGIN: "*"
+      PERSIST_JOBS: "true"
+      DATA_DIR: /app/data
+      CLIENT_DIST: /app/client/dist
+      QUEUE_CONCURRENCY: "2"
+      SEED_ON_BOOT: "false"
+    volumes:
+      - ares-data:/app/data
+      - ares-uploads:/app/uploads
+    restart: unless-stopped
+
+volumes:
+  ares-data:
+  ares-uploads:
