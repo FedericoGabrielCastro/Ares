@@ -73,4 +73,11 @@ export const api = {
   },
 
   getHealth: () => request<{ status: string; uptimeSec: number }>('/api/health'),
+
+  seedJobs: async () => {
+    const body = await request<{ data: { created: number }; message: string }>('/api/jobs/seed', {
+      method: 'POST',
+    });
+    return body;
+  },
 };

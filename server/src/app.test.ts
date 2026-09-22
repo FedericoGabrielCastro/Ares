@@ -60,4 +60,27 @@ describe('Ares API', () => {
     assert.ok(Array.isArray(res.body.data));
     assert.equal(res.body.meta.page, 1);
   });
+
+  it('seeds sample jobs once', async () => {
+    const first = await request(app).post('/api/jobs/seed');
+    assert.ok(first.status === 200 || first.status === 201);
+    assert.ok(typeof first.body.data.created === 'number');
+
+    const second = await request(app).post('/api/jobs/seed');
+    assert.equal(second.status, 200);
+    assert.equal(second.body.data.created, 0);
+  });
+
+  it('creates jobs in bulk', async () => {
+    const res = await request(app)
+      .post('/api/jobs/bulk')
+      .send({
+        jobs: [
+          { type: 'hash', input: { text: 'bulk-a' } },
+          { type: 'transform', input: { text: 'bulk-b', mode: 'lower' } },
+        ],
+      });
+    assert.equal(res.status, 201);
+    assert.equal(res.body.meta.count, 2);
+  });
 });

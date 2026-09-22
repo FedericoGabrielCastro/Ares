@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useJobs, useStats } from '../hooks/useJobs';
+import { useJobs, useSeedJobs, useStats } from '../hooks/useJobs';
 import { StatusBadge } from '../components/StatusBadge';
 
 function formatBytes(bytes: number): string {
@@ -9,6 +9,7 @@ function formatBytes(bytes: number): string {
 export function DashboardPage() {
   const stats = useStats();
   const jobs = useJobs({ page: 1, limit: 6, sort: 'createdAt', order: 'desc' });
+  const seed = useSeedJobs();
 
   const cards = [
     { label: 'Queued', value: stats.data?.queued ?? '—', hint: 'Waiting in queue' },
@@ -26,7 +27,7 @@ export function DashboardPage() {
         </h1>
         <p className="mt-4 text-base leading-relaxed text-mute">
           Submit text, hash, transform, delay, or CSV jobs to the Express API and inspect live results with TanStack
-          Query.
+          Query plus Server-Sent Events.
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
           <Link
@@ -36,12 +37,21 @@ export function DashboardPage() {
             Create job
           </Link>
           <Link
-            to="/jobs"
+            to="/api-explorer"
             className="rounded-lg bg-white px-4 py-2.5 text-sm font-medium text-ink ring-1 ring-line transition hover:-translate-y-0.5"
           >
-            Browse jobs
+            Open API explorer
           </Link>
+          <button
+            type="button"
+            onClick={() => seed.mutate()}
+            disabled={seed.isPending}
+            className="rounded-lg bg-accent/10 px-4 py-2.5 text-sm font-medium text-accent ring-1 ring-accent/20 transition hover:-translate-y-0.5 disabled:opacity-60"
+          >
+            {seed.isPending ? 'Seeding…' : 'Load sample jobs'}
+          </button>
         </div>
+        {seed.isSuccess && <p className="mt-3 text-sm text-mute">{seed.data.message}</p>}
       </section>
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -69,7 +79,7 @@ export function DashboardPage() {
           {jobs.isLoading ? (
             <p className="text-sm text-mute">Loading jobs…</p>
           ) : jobs.data?.data.length === 0 ? (
-            <p className="text-sm text-mute">No jobs yet. Create one to see the queue in action.</p>
+            <p className="text-sm text-mute">No jobs yet. Create one or load samples to see the queue in action.</p>
           ) : (
             <ul className="divide-y divide-line">
               {jobs.data?.data.map((job) => (

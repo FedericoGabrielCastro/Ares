@@ -2,6 +2,7 @@ import http from 'node:http';
 import { loadEnv } from './config/env.js';
 import { createLogger } from './utils/logger.js';
 import { createApp, createContext } from './app.js';
+import { seedSampleJobs } from './services/seed.js';
 
 async function main(): Promise<void> {
   const env = loadEnv();
@@ -12,6 +13,12 @@ async function main(): Promise<void> {
 
   server.listen(env.PORT, () => {
     logger.info({ port: env.PORT, env: env.NODE_ENV }, 'Ares API listening');
+    if (env.NODE_ENV === 'development') {
+      const created = seedSampleJobs(ctx.store, ctx.queue);
+      if (created > 0) {
+        logger.info({ created }, 'Seeded sample jobs');
+      }
+    }
   });
 
   const shutdown = async (signal: string) => {

@@ -3,6 +3,8 @@ import type { JobQueue } from '../services/jobQueue.js';
 import type { JobStore } from '../services/jobStore.js';
 import { validate } from '../middleware/validate.js';
 import { createJobSchema, jobListQuerySchema } from '../validators/job.js';
+import { bulkCreateJobsSchema } from '../validators/bulk.js';
+import { seedSampleJobs } from '../services/seed.js';
 import { AppError } from '../utils/errors.js';
 
 export function createJobsRouter(store: JobStore, queue: JobQueue): Router {
@@ -17,6 +19,23 @@ export function createJobsRouter(store: JobStore, queue: JobQueue): Router {
     const job = store.create(req.body);
     queue.enqueue(job.id);
     res.status(201).json({ data: job });
+  });
+
+  router.post('/bulk', validate(bulkCreateJobsSchema), (req, res) => {
+    const jobs = req.body.jobs.map((payload: { type: string; input: object }) => {
+      const job = store.create(payload as never);
+      queue.enqueue(job.id);
+      return job;
+    });
+    res.status(201).json({ data: jobs, meta: { count: jobs.length } });
+  });
+
+  router.post('/seed', (_req, res) => {
+    const created = seedSampleJobs(store, queue);
+    res.status(created > 0 ? 201 : 200).json({
+      data: { created },
+      message: created > 0 ? 'Sample jobs enqueued' : 'Store already has jobs; seed skipped',
+    });
   });
 
   router.get('/:id', (req, res) => {

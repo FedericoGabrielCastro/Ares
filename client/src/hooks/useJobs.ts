@@ -76,3 +76,14 @@ export function useDeleteJob() {
     },
   });
 }
+
+export function useSeedJobs() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => api.seedJobs(),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['jobs'] });
+      void queryClient.invalidateQueries({ queryKey: ['stats'] });
+    },
+  });
+}
