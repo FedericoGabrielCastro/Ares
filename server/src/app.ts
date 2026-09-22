@@ -1,3 +1,5 @@
+import path from 'node:path';
+import fs from 'node:fs';
 import cors from 'cors';
 import express from 'express';
 import rateLimit from 'express-rate-limit';
@@ -24,9 +26,15 @@ export interface AppContext {
 
 export function createApp(ctx: AppContext) {
   const app = express();
+  const clientDist = path.resolve(process.cwd(), '../client/dist');
+  const hasClientBuild = fs.existsSync(path.join(clientDist, 'index.html'));
 
   app.disable('x-powered-by');
-  app.use(helmet());
+  app.use(
+    helmet({
+      contentSecurityPolicy: false,
+    }),
+  );
   app.use(
     cors({
       origin: ctx.env.CORS_ORIGIN,
@@ -56,25 +64,32 @@ export function createApp(ctx: AppContext) {
     }),
   );
 
-  app.get('/', (_req, res) => {
-    res.json({
-      name: 'Ares API',
-      version: '1.0.0',
-      docs: {
-        health: '/api/health',
-        jobs: '/api/jobs',
-        stats: '/api/stats',
-        upload: '/api/upload/text-stats',
-      },
-    });
-  });
-
   app.use('/api', createHealthRouter(ctx.store, ctx.queue));
   app.use('/api/jobs', createJobsRouter(ctx.store, ctx.queue));
   app.use('/api/stats', createStatsRouter(ctx.store, ctx.queue));
   app.use('/api/upload', createUploadRouter(ctx.env, ctx.store, ctx.queue));
 
-  app.use(notFound);
+  if (hasClientBuild) {
+    app.use(express.static(clientDist));
+    app.get(/^(?!\/api).*/, (_req, res) => {
+      res.sendFile(path.join(clientDist, 'index.html'));
+    });
+  } else {
+    app.get('/', (_req, res) => {
+      res.json({
+        name: 'Ares API',
+        version: '1.0.0',
+        docs: {
+          health: '/api/health',
+          jobs: '/api/jobs',
+          stats: '/api/stats',
+          upload: '/api/upload/text-stats',
+        },
+      });
+    });
+    app.use(notFound);
+  }
+
   app.use(createErrorHandler(ctx.logger));
 
   return app;
