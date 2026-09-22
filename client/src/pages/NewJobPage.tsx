@@ -41,14 +41,14 @@ export function NewJobPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-8">
-      <div>
-        <p className="mb-2 font-mono text-xs uppercase tracking-[0.18em] text-accent">Create</p>
-        <h1 className="font-display text-3xl font-semibold tracking-tight text-ink">New processing job</h1>
+      <div className="border-b border-line pb-6">
+        <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-accent">Create</p>
+        <h1 className="mt-2 font-display text-4xl font-extrabold tracking-tight text-ink">New job</h1>
         <p className="mt-3 text-mute">{typeHelp[type]}</p>
       </div>
 
       <form
-        className="space-y-5 rounded-2xl bg-white/80 p-6 ring-1 ring-line"
+        className="space-y-5 border border-ink bg-panel p-5"
         onSubmit={(event) => {
           event.preventDefault();
           setError(null);
@@ -65,7 +65,7 @@ export function NewJobPage() {
           <select
             value={type}
             onChange={(event) => setType(event.target.value as JobType)}
-            className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm"
+            className="ui-field"
           >
             <option value="text-stats">text-stats</option>
             <option value="hash">hash</option>
@@ -82,7 +82,7 @@ export function NewJobPage() {
               value={text}
               onChange={(event) => setText(event.target.value)}
               rows={6}
-              className="w-full rounded-lg border border-line bg-white px-3 py-2 font-mono text-sm outline-none ring-accent/30 focus:ring-2"
+              className="ui-field font-mono"
             />
           </label>
         )}
@@ -93,7 +93,7 @@ export function NewJobPage() {
             <select
               value={mode}
               onChange={(event) => setMode(event.target.value as TransformMode)}
-              className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm"
+              className="ui-field"
             >
               <option value="upper">upper</option>
               <option value="lower">lower</option>
@@ -111,7 +111,7 @@ export function NewJobPage() {
               max={30000}
               value={delayMs}
               onChange={(event) => setDelayMs(Number(event.target.value))}
-              className="w-full rounded-lg border border-line bg-white px-3 py-2 font-mono text-sm"
+              className="ui-field font-mono"
             />
           </label>
         )}
@@ -124,7 +124,7 @@ export function NewJobPage() {
                 value={csv}
                 onChange={(event) => setCsv(event.target.value)}
                 rows={7}
-                className="w-full rounded-lg border border-line bg-white px-3 py-2 font-mono text-sm outline-none ring-accent/30 focus:ring-2"
+                className="ui-field font-mono"
               />
             </label>
             <label className="block space-y-2">
@@ -132,19 +132,15 @@ export function NewJobPage() {
               <input
                 value={column}
                 onChange={(event) => setColumn(event.target.value)}
-                className="w-full rounded-lg border border-line bg-white px-3 py-2 font-mono text-sm"
+                className="ui-field font-mono"
               />
             </label>
           </>
         )}
 
-        {error && <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-800">{error}</p>}
+        {error && <p className="border border-rose-300 bg-rose-50 px-3 py-2 text-sm text-rose-800">{error}</p>}
 
-        <button
-          type="submit"
-          disabled={createJob.isPending}
-          className="rounded-lg bg-ink px-4 py-2.5 text-sm font-medium text-white transition hover:-translate-y-0.5 disabled:opacity-60"
-        >
+        <button type="submit" disabled={createJob.isPending} className="ui-btn disabled:opacity-60">
           {createJob.isPending ? 'Submitting…' : 'Enqueue job'}
         </button>
       </form>

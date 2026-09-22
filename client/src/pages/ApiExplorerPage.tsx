@@ -65,17 +65,17 @@ export function ApiExplorerPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <p className="mb-2 font-mono text-xs uppercase tracking-[0.18em] text-accent">API</p>
-        <h1 className="font-display text-3xl font-semibold tracking-tight text-ink">Explorer</h1>
+      <div className="border-b border-line pb-6">
+        <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-accent">API</p>
+        <h1 className="mt-2 font-display text-4xl font-extrabold tracking-tight text-ink">Explorer</h1>
         <p className="mt-3 max-w-2xl text-mute">
-          Hit the Express routes directly from the UI. Useful for demos and for verifying request
-          validation without leaving the browser.
+          Hit the Express routes directly from the UI. Useful for demos and for verifying request validation without
+          leaving the browser.
         </p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
-        <aside className="space-y-2 rounded-2xl bg-white/80 p-3 ring-1 ring-line">
+      <div className="grid gap-6 lg:grid-cols-[220px_1fr]">
+        <aside className="space-y-1 border border-ink bg-panel p-2">
           {examples.map((example) => (
             <button
               key={example.id}
@@ -88,8 +88,10 @@ export function ApiExplorerPage() {
                 setStatus('idle');
                 setResponse('Send a request to see the response.');
               }}
-              className={`block w-full rounded-lg px-3 py-2 text-left text-sm transition ${
-                selectedId === example.id ? 'bg-ink text-white' : 'text-ink hover:bg-stone-100'
+              className={`block w-full border-l-2 px-3 py-2 text-left text-sm transition ${
+                selectedId === example.id
+                  ? 'border-accent bg-ink text-white'
+                  : 'border-transparent text-ink hover:bg-paper'
               }`}
             >
               <span className="font-mono text-[10px] uppercase opacity-70">{example.method}</span>
@@ -99,7 +101,7 @@ export function ApiExplorerPage() {
         </aside>
 
         <form
-          className="space-y-4 rounded-2xl bg-white/80 p-5 ring-1 ring-line"
+          className="space-y-4 border border-ink bg-panel p-5"
           onSubmit={(event) => {
             event.preventDefault();
             setPending(true);
@@ -133,22 +135,14 @@ export function ApiExplorerPage() {
             <select
               value={method}
               onChange={(event) => setMethod(event.target.value as HttpMethod)}
-              className="rounded-lg border border-line bg-white px-3 py-2 font-mono text-sm"
+              className="ui-field font-mono sm:w-28"
             >
               <option value="GET">GET</option>
               <option value="POST">POST</option>
               <option value="DELETE">DELETE</option>
             </select>
-            <input
-              value={path}
-              onChange={(event) => setPath(event.target.value)}
-              className="w-full rounded-lg border border-line bg-white px-3 py-2 font-mono text-sm outline-none ring-accent/30 focus:ring-2"
-            />
-            <button
-              type="submit"
-              disabled={pending}
-              className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
-            >
+            <input value={path} onChange={(event) => setPath(event.target.value)} className="ui-field font-mono" />
+            <button type="submit" disabled={pending} className="ui-btn-accent disabled:opacity-60">
               {pending ? 'Sending…' : 'Send'}
             </button>
           </div>
@@ -160,7 +154,7 @@ export function ApiExplorerPage() {
                 value={body}
                 onChange={(event) => setBody(event.target.value)}
                 rows={10}
-                className="w-full rounded-lg border border-line bg-white px-3 py-2 font-mono text-xs outline-none ring-accent/30 focus:ring-2"
+                className="ui-field font-mono text-xs"
                 placeholder={method === 'POST' ? '{ }' : 'Optional'}
               />
             </label>
@@ -171,7 +165,7 @@ export function ApiExplorerPage() {
               <p className="text-sm font-medium text-ink">Response</p>
               <p className="font-mono text-xs text-mute">{status}</p>
             </div>
-            <pre className="max-h-[420px] overflow-auto rounded-xl bg-stone-950 p-4 font-mono text-xs leading-relaxed text-teal-100">
+            <pre className="max-h-[420px] overflow-auto border border-white/10 bg-ink p-4 font-mono text-xs leading-relaxed text-orange-100">
               {response}
             </pre>
           </div>
