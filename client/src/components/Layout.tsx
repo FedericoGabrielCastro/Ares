@@ -3,55 +3,60 @@ import { Link, NavLink } from 'react-router-dom';
 import { useHealth } from '../hooks/useJobs';
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>
-  `text-sm transition-colors ${isActive ? 'text-ink' : 'text-mute hover:text-ink'}`;
+  `block border-l-2 px-3 py-2 text-sm transition-colors ${
+    isActive
+      ? 'border-accent bg-ink text-white'
+      : 'border-transparent text-mute hover:border-line hover:text-ink'
+  }`;
 
 export function Layout({ children }: { children: ReactNode }) {
   const health = useHealth();
+  const online = health.data?.status === 'ok';
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden">
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_#d7ebe6_0%,_transparent_55%),linear-gradient(180deg,#f4f7f6_0%,#eef2f1_100%)]" />
-      <div className="pointer-events-none absolute inset-0 -z-10 opacity-[0.35] [background-image:linear-gradient(rgba(15,23,22,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(15,23,22,0.04)_1px,transparent_1px)] [background-size:48px_48px]" />
+    <div className="relative min-h-screen lg:grid lg:grid-cols-[240px_1fr]">
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(160deg,#eeeff2_0%,#e4e7ee_48%,#f7f7f9_100%)]" />
+      <div className="pointer-events-none absolute inset-0 -z-10 opacity-[0.45] [background-image:repeating-linear-gradient(-12deg,transparent_0_18px,rgba(18,20,26,0.03)_18px_19px)]" />
 
-      <header className="border-b border-line/70 bg-white/55 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-5 py-4">
-          <Link to="/" className="group flex items-center gap-3">
-            <span className="grid h-9 w-9 place-items-center rounded-lg bg-accent text-white shadow-sm shadow-accent/25 transition-transform duration-300 group-hover:-translate-y-0.5">
-              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M5 18 L12 5 L19 18 Z" strokeLinejoin="round" />
-                <path d="M8 13 H16" strokeLinecap="round" />
-              </svg>
-            </span>
-            <div>
-              <p className="font-display text-lg font-semibold tracking-tight text-ink">Ares</p>
-              <p className="text-xs text-mute">Job processing platform</p>
-            </div>
+      <aside className="animate-rail border-b border-line bg-ink text-white lg:sticky lg:top-0 lg:flex lg:h-screen lg:flex-col lg:border-b-0 lg:border-r lg:border-white/10">
+        <div className="flex items-center justify-between gap-4 px-5 py-5 lg:block">
+          <Link to="/" className="group block">
+            <p className="font-display text-3xl font-extrabold tracking-tight transition group-hover:text-accent">
+              Ares
+            </p>
+            <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.22em] text-white/45">
+              Process desk
+            </p>
           </Link>
-
-          <nav className="flex items-center gap-5">
-            <NavLink to="/" end className={linkClass}>
-              Dashboard
-            </NavLink>
-            <NavLink to="/jobs" className={linkClass}>
-              Jobs
-            </NavLink>
-            <NavLink to="/jobs/new" className={linkClass}>
-              New job
-            </NavLink>
-            <NavLink to="/api-explorer" className={linkClass}>
-              API
-            </NavLink>
-            <span className="hidden items-center gap-2 rounded-full bg-white/80 px-3 py-1 text-xs text-mute ring-1 ring-line sm:inline-flex">
-              <span
-                className={`h-1.5 w-1.5 rounded-full ${health.data?.status === 'ok' ? 'bg-accent animate-pulse-soft' : 'bg-rose-400'}`}
-              />
-              API {health.data?.status === 'ok' ? 'online' : 'checking'}
-            </span>
-          </nav>
+          <div className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-wide text-white/55 lg:mt-6">
+            <span className={`h-2 w-2 ${online ? 'bg-accent animate-blink' : 'bg-rose-400'}`} />
+            {online ? 'Live' : 'Offline'}
+          </div>
         </div>
-      </header>
 
-      <main className="mx-auto max-w-6xl px-5 py-10 animate-fade-up">{children}</main>
+        <nav className="flex gap-1 overflow-x-auto px-3 pb-4 lg:mt-2 lg:flex-1 lg:flex-col lg:overflow-visible lg:px-4">
+          <NavLink to="/" end className={linkClass}>
+            Dashboard
+          </NavLink>
+          <NavLink to="/jobs" className={linkClass}>
+            Jobs
+          </NavLink>
+          <NavLink to="/jobs/new" className={linkClass}>
+            New job
+          </NavLink>
+          <NavLink to="/api-explorer" className={linkClass}>
+            API
+          </NavLink>
+        </nav>
+
+        <div className="hidden border-t border-white/10 px-5 py-4 font-mono text-[11px] text-white/40 lg:block">
+          Node · Express · React
+        </div>
+      </aside>
+
+      <main className="min-w-0 px-5 py-8 sm:px-8 lg:py-10">
+        <div className="mx-auto max-w-5xl animate-rise">{children}</div>
+      </main>
     </div>
   );
 }

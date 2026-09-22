@@ -28,21 +28,18 @@ export function JobsPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-wrap items-end justify-between gap-4">
+      <div className="flex flex-wrap items-end justify-between gap-4 border-b border-line pb-6">
         <div>
-          <p className="mb-2 font-mono text-xs uppercase tracking-[0.18em] text-accent">Jobs</p>
-          <h1 className="font-display text-3xl font-semibold tracking-tight text-ink">Queue & history</h1>
+          <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-accent">Jobs</p>
+          <h1 className="mt-2 font-display text-4xl font-extrabold tracking-tight text-ink">Queue & history</h1>
         </div>
-        <Link
-          to="/jobs/new"
-          className="rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-white transition hover:-translate-y-0.5"
-        >
+        <Link to="/jobs/new" className="ui-btn-accent">
           New job
         </Link>
       </div>
 
       <form
-        className="grid gap-3 rounded-2xl bg-white/80 p-4 ring-1 ring-line md:grid-cols-[1fr_auto_auto_auto]"
+        className="grid gap-3 border border-ink bg-panel p-3 md:grid-cols-[1fr_auto_auto_auto]"
         onSubmit={(event) => {
           event.preventDefault();
           setPage(1);
@@ -53,7 +50,7 @@ export function JobsPage() {
           value={q}
           onChange={(event) => setQ(event.target.value)}
           placeholder="Search id, type, payload…"
-          className="rounded-lg border border-line bg-white px-3 py-2 text-sm outline-none ring-accent/30 focus:ring-2"
+          className="ui-field"
         />
         <select
           value={status}
@@ -61,7 +58,7 @@ export function JobsPage() {
             setStatus(event.target.value as JobStatus | '');
             setPage(1);
           }}
-          className="rounded-lg border border-line bg-white px-3 py-2 text-sm"
+          className="ui-field"
         >
           <option value="">All statuses</option>
           <option value="queued">Queued</option>
@@ -76,7 +73,7 @@ export function JobsPage() {
             setType(event.target.value as JobType | '');
             setPage(1);
           }}
-          className="rounded-lg border border-line bg-white px-3 py-2 text-sm"
+          className="ui-field"
         >
           <option value="">All types</option>
           <option value="text-stats">text-stats</option>
@@ -85,14 +82,14 @@ export function JobsPage() {
           <option value="delay">delay</option>
           <option value="csv-aggregate">csv-aggregate</option>
         </select>
-        <button type="submit" className="rounded-lg bg-ink px-4 py-2 text-sm font-medium text-white">
+        <button type="submit" className="ui-btn">
           Apply
         </button>
       </form>
 
-      <div className="overflow-hidden rounded-2xl bg-white/80 ring-1 ring-line">
+      <div className="overflow-x-auto border border-ink bg-panel">
         <table className="w-full text-left text-sm">
-          <thead className="border-b border-line bg-stone-50/80 text-xs uppercase tracking-wide text-mute">
+          <thead className="border-b border-ink bg-ink text-[11px] uppercase tracking-wide text-white/70">
             <tr>
               <th className="px-4 py-3 font-medium">ID</th>
               <th className="px-4 py-3 font-medium">Type</th>
@@ -116,7 +113,7 @@ export function JobsPage() {
               </tr>
             ) : (
               jobs.data?.data.map((job) => (
-                <tr key={job.id} className="border-b border-line/70 last:border-0 hover:bg-teal-50/40">
+                <tr key={job.id} className="border-b border-line last:border-0 hover:bg-paper/80">
                   <td className="px-4 py-3">
                     <Link to={`/jobs/${job.id}`} className="font-mono text-ink hover:text-accent">
                       {job.id}
@@ -147,7 +144,7 @@ export function JobsPage() {
             type="button"
             disabled={page <= 1}
             onClick={() => setPage((value) => Math.max(1, value - 1))}
-            className="rounded-lg bg-white px-3 py-1.5 ring-1 ring-line disabled:opacity-40"
+            className="ui-btn-ghost disabled:opacity-40"
           >
             Previous
           </button>
@@ -155,7 +152,7 @@ export function JobsPage() {
             type="button"
             disabled={!jobs.data || page >= jobs.data.meta.totalPages}
             onClick={() => setPage((value) => value + 1)}
-            className="rounded-lg bg-white px-3 py-1.5 ring-1 ring-line disabled:opacity-40"
+            className="ui-btn-ghost disabled:opacity-40"
           >
             Next
           </button>

@@ -11,84 +11,86 @@ export function DashboardPage() {
   const jobs = useJobs({ page: 1, limit: 6, sort: 'createdAt', order: 'desc' });
   const seed = useSeedJobs();
 
-  const cards = [
-    { label: 'Queued', value: stats.data?.queued ?? '—', hint: 'Waiting in queue' },
-    { label: 'Running', value: stats.data?.running ?? '—', hint: 'Active workers' },
-    { label: 'Completed', value: stats.data?.completed ?? '—', hint: 'Successful runs' },
-    { label: 'Failed', value: stats.data?.failed ?? '—', hint: 'Needs retry' },
+  const meters = [
+    { label: 'Queued', value: stats.data?.queued ?? '—' },
+    { label: 'Running', value: stats.data?.running ?? '—' },
+    { label: 'Done', value: stats.data?.completed ?? '—' },
+    { label: 'Failed', value: stats.data?.failed ?? '—' },
   ];
 
   return (
-    <div className="space-y-10">
-      <section className="max-w-2xl">
-        <p className="mb-3 font-mono text-xs uppercase tracking-[0.18em] text-accent">Overview</p>
-        <h1 className="font-display text-4xl font-semibold tracking-tight text-ink sm:text-5xl">
-          Watch work move through the queue.
+    <div className="space-y-12">
+      <section className="border-b border-line pb-10">
+        <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-accent">Ares</p>
+        <h1 className="mt-4 max-w-3xl font-display text-5xl font-extrabold leading-[0.95] tracking-tight text-ink sm:text-6xl">
+          Jobs in motion.
         </h1>
-        <p className="mt-4 text-base leading-relaxed text-mute">
-          Submit text, hash, transform, delay, or CSV jobs to the Express API and inspect live results with TanStack
-          Query plus Server-Sent Events.
+        <p className="mt-5 max-w-xl text-base leading-relaxed text-mute">
+          Enqueue work, watch workers chew through it, and inspect results — powered by Express
+          streams, worker threads, and TanStack Query.
         </p>
-        <div className="mt-6 flex flex-wrap gap-3">
-          <Link
-            to="/jobs/new"
-            className="rounded-lg bg-ink px-4 py-2.5 text-sm font-medium text-white transition hover:-translate-y-0.5 hover:bg-ink/90"
-          >
+        <div className="mt-7 flex flex-wrap gap-3">
+          <Link to="/jobs/new" className="ui-btn">
             Create job
           </Link>
-          <Link
-            to="/api-explorer"
-            className="rounded-lg bg-white px-4 py-2.5 text-sm font-medium text-ink ring-1 ring-line transition hover:-translate-y-0.5"
-          >
-            Open API explorer
+          <Link to="/api-explorer" className="ui-btn-ghost">
+            API explorer
           </Link>
           <button
             type="button"
             onClick={() => seed.mutate()}
             disabled={seed.isPending}
-            className="rounded-lg bg-accent/10 px-4 py-2.5 text-sm font-medium text-accent ring-1 ring-accent/20 transition hover:-translate-y-0.5 disabled:opacity-60"
+            className="ui-btn-accent disabled:opacity-50"
           >
-            {seed.isPending ? 'Seeding…' : 'Load sample jobs'}
+            {seed.isPending ? 'Seeding…' : 'Load samples'}
           </button>
         </div>
         {seed.isSuccess && <p className="mt-3 text-sm text-mute">{seed.data.message}</p>}
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {cards.map((card, index) => (
-          <div
-            key={card.label}
-            className="animate-fade-up rounded-2xl bg-white/80 p-5 ring-1 ring-line"
-            style={{ animationDelay: `${index * 60}ms` }}
-          >
-            <p className="text-xs uppercase tracking-wide text-mute">{card.label}</p>
-            <p className="mt-3 font-mono text-3xl text-ink">{card.value}</p>
-            <p className="mt-2 text-sm text-mute">{card.hint}</p>
-          </div>
-        ))}
+      <section>
+        <div className="mb-3 flex items-end justify-between gap-4">
+          <h2 className="font-display text-xl font-bold text-ink">Queue meter</h2>
+          <p className="font-mono text-[11px] uppercase tracking-wide text-mute">live</p>
+        </div>
+        <div className="grid border border-ink sm:grid-cols-4">
+          {meters.map((meter, index) => (
+            <div
+              key={meter.label}
+              className={`animate-rise bg-panel px-4 py-5 ${index > 0 ? 'border-t border-ink sm:border-t-0 sm:border-l' : ''}`}
+              style={{ animationDelay: `${index * 70}ms` }}
+            >
+              <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-mute">{meter.label}</p>
+              <p className="mt-3 font-display text-4xl font-bold text-ink">{meter.value}</p>
+            </div>
+          ))}
+        </div>
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-        <div className="rounded-2xl bg-white/80 p-5 ring-1 ring-line">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-display text-lg font-semibold text-ink">Recent jobs</h2>
+      <section className="grid gap-10 lg:grid-cols-[1.35fr_0.9fr]">
+        <div>
+          <div className="mb-4 flex items-end justify-between gap-4 border-b border-line pb-3">
+            <h2 className="font-display text-xl font-bold text-ink">Recent</h2>
             <Link to="/jobs" className="text-sm text-accent hover:underline">
-              View all
+              All jobs
             </Link>
           </div>
           {jobs.isLoading ? (
             <p className="text-sm text-mute">Loading jobs…</p>
           ) : jobs.data?.data.length === 0 ? (
-            <p className="text-sm text-mute">No jobs yet. Create one or load samples to see the queue in action.</p>
+            <p className="text-sm text-mute">No jobs yet. Load samples to fill the desk.</p>
           ) : (
-            <ul className="divide-y divide-line">
+            <ul>
               {jobs.data?.data.map((job) => (
-                <li key={job.id} className="flex items-center justify-between gap-4 py-3">
+                <li
+                  key={job.id}
+                  className="flex items-center justify-between gap-4 border-b border-line py-3 transition hover:bg-white/60"
+                >
                   <div className="min-w-0">
                     <Link to={`/jobs/${job.id}`} className="font-mono text-sm text-ink hover:text-accent">
                       {job.id}
                     </Link>
-                    <p className="truncate text-xs text-mute">{job.type}</p>
+                    <p className="truncate font-mono text-[11px] text-mute">{job.type}</p>
                   </div>
                   <StatusBadge status={job.status} />
                 </li>
@@ -97,33 +99,22 @@ export function DashboardPage() {
           )}
         </div>
 
-        <div className="rounded-2xl bg-ink p-5 text-white shadow-xl shadow-ink/10">
-          <h2 className="font-display text-lg font-semibold">Runtime</h2>
-          <dl className="mt-5 space-y-4 font-mono text-sm">
-            <div className="flex justify-between gap-4">
-              <dt className="text-white/55">Concurrency</dt>
-              <dd>{stats.data?.concurrency ?? '—'}</dd>
-            </div>
-            <div className="flex justify-between gap-4">
-              <dt className="text-white/55">Queue depth</dt>
-              <dd>{stats.data?.queueDepth ?? '—'}</dd>
-            </div>
-            <div className="flex justify-between gap-4">
-              <dt className="text-white/55">Avg duration</dt>
-              <dd>{stats.data ? `${stats.data.averageDurationMs} ms` : '—'}</dd>
-            </div>
-            <div className="flex justify-between gap-4">
-              <dt className="text-white/55">Processed / min</dt>
-              <dd>{stats.data?.processedLastMinute ?? '—'}</dd>
-            </div>
-            <div className="flex justify-between gap-4">
-              <dt className="text-white/55">Heap</dt>
-              <dd>{stats.data ? formatBytes(stats.data.memory.heapUsed) : '—'}</dd>
-            </div>
-            <div className="flex justify-between gap-4">
-              <dt className="text-white/55">Node</dt>
-              <dd>{stats.data?.node ?? '—'}</dd>
-            </div>
+        <div className="border border-ink bg-ink px-5 py-5 text-white">
+          <h2 className="font-display text-xl font-bold">Runtime</h2>
+          <dl className="mt-6 space-y-4 font-mono text-sm">
+            {[
+              ['Concurrency', stats.data?.concurrency ?? '—'],
+              ['Queue depth', stats.data?.queueDepth ?? '—'],
+              ['Avg duration', stats.data ? `${stats.data.averageDurationMs} ms` : '—'],
+              ['Processed / min', stats.data?.processedLastMinute ?? '—'],
+              ['Heap', stats.data ? formatBytes(stats.data.memory.heapUsed) : '—'],
+              ['Node', stats.data?.node ?? '—'],
+            ].map(([label, value]) => (
+              <div key={String(label)} className="flex justify-between gap-4 border-b border-white/10 pb-3 last:border-0">
+                <dt className="text-white/45">{label}</dt>
+                <dd>{value}</dd>
+              </div>
+            ))}
           </dl>
         </div>
       </section>

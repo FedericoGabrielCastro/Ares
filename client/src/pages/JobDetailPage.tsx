@@ -28,7 +28,7 @@ export function JobDetailPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="flex flex-wrap items-start justify-between gap-4 border-b border-line pb-6">
         <div>
           <Link to="/jobs" className="text-sm text-mute hover:text-ink">
             ← Jobs
@@ -41,11 +41,7 @@ export function JobDetailPage() {
         </div>
         <div className="flex flex-wrap gap-2">
           {(data.status === 'failed' || data.status === 'cancelled') && (
-            <button
-              type="button"
-              onClick={() => retry.mutate(data.id)}
-              className="rounded-lg bg-accent px-3 py-2 text-sm font-medium text-white"
-            >
+            <button type="button" onClick={() => retry.mutate(data.id)} className="ui-btn-accent">
               Retry
             </button>
           )}
@@ -56,42 +52,45 @@ export function JobDetailPage() {
                 onSuccess: () => navigate('/jobs'),
               })
             }
-            className="rounded-lg bg-white px-3 py-2 text-sm font-medium text-ink ring-1 ring-line"
+            className="ui-btn-ghost"
           >
             {data.status === 'queued' || data.status === 'running' ? 'Cancel' : 'Delete'}
           </button>
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid border border-ink md:grid-cols-3">
         {[
           ['Created', new Date(data.createdAt).toLocaleString()],
           ['Updated', new Date(data.updatedAt).toLocaleString()],
           ['Attempts', String(data.attempts)],
-        ].map(([label, value]) => (
-          <div key={label} className="rounded-2xl bg-white/80 p-4 ring-1 ring-line">
-            <p className="text-xs uppercase tracking-wide text-mute">{label}</p>
+        ].map(([label, value], index) => (
+          <div
+            key={label}
+            className={`bg-panel px-4 py-4 ${index > 0 ? 'border-t border-ink md:border-t-0 md:border-l' : ''}`}
+          >
+            <p className="font-mono text-[11px] uppercase tracking-wide text-mute">{label}</p>
             <p className="mt-2 font-mono text-sm text-ink">{value}</p>
           </div>
         ))}
       </div>
 
       <section className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-2xl bg-white/80 p-5 ring-1 ring-line">
-          <h2 className="font-display text-lg font-semibold text-ink">Input</h2>
-          <pre className="mt-4 overflow-x-auto rounded-xl bg-stone-950 p-4 font-mono text-xs leading-relaxed text-teal-100">
+        <div className="border border-ink bg-panel p-5">
+          <h2 className="font-display text-lg font-bold text-ink">Input</h2>
+          <pre className="mt-4 overflow-x-auto border border-white/10 bg-ink p-4 font-mono text-xs leading-relaxed text-orange-100">
             {JSON.stringify(data.input, null, 2)}
           </pre>
         </div>
-        <div className="rounded-2xl bg-white/80 p-5 ring-1 ring-line">
-          <h2 className="font-display text-lg font-semibold text-ink">Result</h2>
+        <div className="border border-ink bg-panel p-5">
+          <h2 className="font-display text-lg font-bold text-ink">Result</h2>
           {data.error ? (
-            <p className="mt-4 rounded-xl bg-rose-50 p-4 text-sm text-rose-800 ring-1 ring-rose-100">{data.error}</p>
+            <p className="mt-4 border border-rose-300 bg-rose-50 p-4 text-sm text-rose-800">{data.error}</p>
           ) : data.result ? (
             <div className="mt-4 space-y-3">
               <p className="text-sm text-mute">{data.result.summary}</p>
               <p className="font-mono text-xs text-mute">{data.result.durationMs} ms</p>
-              <pre className="overflow-x-auto rounded-xl bg-stone-950 p-4 font-mono text-xs leading-relaxed text-teal-100">
+              <pre className="overflow-x-auto border border-white/10 bg-ink p-4 font-mono text-xs leading-relaxed text-orange-100">
                 {JSON.stringify(data.result.data, null, 2)}
               </pre>
             </div>
