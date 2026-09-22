@@ -1,0 +1,55 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-display: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --color-ink: #14201e;
+  --color-mute: #5d6b67;
+  --color-line: #d7e0dd;
+  --color-accent: #0f766e;
+  --animate-fade-up: fade-up 0.55s ease both;
+  --animate-pulse-soft: pulse-soft 2.2s ease-in-out infinite;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(0.92);
+  }
+}
+
+@layer base {
+  html {
+    @apply antialiased;
+  }
+
+  body {
+    @apply m-0 min-h-screen bg-[#f4f7f6] font-sans text-ink;
+  }
+
+  #root {
+    @apply min-h-screen;
+  }
+
+  button,
+  a {
+    @apply cursor-pointer;
+  }
+}
