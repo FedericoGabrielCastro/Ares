@@ -38,6 +38,9 @@ export function Layout({ children }: { children: ReactNode }) {
             <NavLink to="/jobs/new" className={linkClass}>
               New job
             </NavLink>
+            <NavLink to="/api-explorer" className={linkClass}>
+              API
+            </NavLink>
             <span className="hidden items-center gap-2 rounded-full bg-white/80 px-3 py-1 text-xs text-mute ring-1 ring-line sm:inline-flex">
               <span
                 className={`h-1.5 w-1.5 rounded-full ${health.data?.status === 'ok' ? 'bg-accent animate-pulse-soft' : 'bg-rose-400'}`}

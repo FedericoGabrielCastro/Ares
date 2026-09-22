@@ -1,5 +1,6 @@
 import path from 'node:path';
 import fs from 'node:fs';
+import compression from 'compression';
 import cors from 'cors';
 import express from 'express';
 import rateLimit from 'express-rate-limit';
@@ -16,6 +17,7 @@ import { createHealthRouter } from './routes/health.js';
 import { createJobsRouter } from './routes/jobs.js';
 import { createStatsRouter } from './routes/stats.js';
 import { createUploadRouter } from './routes/upload.js';
+import { createEventsRouter } from './routes/events.js';
 
 export interface AppContext {
   env: Env;
@@ -35,6 +37,7 @@ export function createApp(ctx: AppContext) {
       contentSecurityPolicy: false,
     }),
   );
+  app.use(compression());
   app.use(
     cors({
       origin: ctx.env.CORS_ORIGIN,
@@ -68,9 +71,10 @@ export function createApp(ctx: AppContext) {
   app.use('/api/jobs', createJobsRouter(ctx.store, ctx.queue));
   app.use('/api/stats', createStatsRouter(ctx.store, ctx.queue));
   app.use('/api/upload', createUploadRouter(ctx.env, ctx.store, ctx.queue));
+  app.use('/api/events', createEventsRouter(ctx.store, ctx.queue));
 
   if (hasClientBuild) {
-    app.use(express.static(clientDist));
+    app.use(express.static(clientDist, { maxAge: '1h', index: false }));
     app.get(/^(?!\/api).*/, (_req, res) => {
       res.sendFile(path.join(clientDist, 'index.html'));
     });
@@ -84,6 +88,7 @@ export function createApp(ctx: AppContext) {
           jobs: '/api/jobs',
           stats: '/api/stats',
           upload: '/api/upload/text-stats',
+          events: '/api/events/stream',
         },
       });
     });

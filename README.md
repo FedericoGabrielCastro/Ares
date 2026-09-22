@@ -74,8 +74,11 @@ Ares/
 | `GET` | `/api/jobs/:id` | Job detail |
 | `DELETE` | `/api/jobs/:id` | Cancel / remove a job |
 | `POST` | `/api/jobs/:id/retry` | Re-queue a failed job |
+| `POST` | `/api/jobs/bulk` | Create multiple jobs |
+| `POST` | `/api/jobs/seed` | Enqueue demo samples |
 | `GET` | `/api/stats` | Queue and throughput metrics |
 | `POST` | `/api/upload/text-stats` | Upload a text file as a job |
+| `GET` | `/api/events/stream` | Server-Sent Events for live updates |
 
 ## License
 

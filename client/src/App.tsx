@@ -5,6 +5,8 @@ import { DashboardPage } from './pages/DashboardPage';
 import { JobsPage } from './pages/JobsPage';
 import { JobDetailPage } from './pages/JobDetailPage';
 import { NewJobPage } from './pages/NewJobPage';
+import { ApiExplorerPage } from './pages/ApiExplorerPage';
+import { useJobEventStream } from './hooks/useJobEventStream';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -16,19 +18,28 @@ const queryClient = new QueryClient({
   },
 });
 
+function AppRoutes() {
+  useJobEventStream(true);
+
+  return (
+    <Layout>
+      <Routes>
+        <Route path="/" element={<DashboardPage />} />
+        <Route path="/jobs" element={<JobsPage />} />
+        <Route path="/jobs/new" element={<NewJobPage />} />
+        <Route path="/jobs/:id" element={<JobDetailPage />} />
+        <Route path="/api-explorer" element={<ApiExplorerPage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Layout>
+  );
+}
+
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<DashboardPage />} />
-            <Route path="/jobs" element={<JobsPage />} />
-            <Route path="/jobs/new" element={<NewJobPage />} />
-            <Route path="/jobs/:id" element={<JobDetailPage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Layout>
+        <AppRoutes />
       </BrowserRouter>
     </QueryClientProvider>
   );
